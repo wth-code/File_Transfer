@@ -20,7 +20,9 @@
             </div>
             <div style="margin: auto; width: fit-content; margin-top: 20px;">
                 <p style="text-align:center" id="code_txt"></p>
-                <button class="btn btn-primary" style="width: 100px" id="send">Send</button>
+                <div style="text-align:center">
+                    <button class="btn btn-primary" style="width: 100px" id="send">Send</button>
+                </div>
             </div>
             <hr>
             <h1 style="text-align: center;">Receive Files</h1>
@@ -47,8 +49,12 @@
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     let show_txt = JSON.parse(xhr.response)["receive_code"];
+                    let download_url = JSON.parse(xhr.response)["download_url"];
+                    let img_url = `./qrcode/${show_txt}`;
                     let code_txt = document.getElementById('code_txt');
-                    code_txt.innerHTML = `Receive code is: ${show_txt}`;
+                    code_txt.innerHTML = `Receive code is: ${show_txt}<br>
+                                          Download Link: <a href="${download_url}" target="_blank">Click Me</a> <br>
+                                          <img src="${img_url}" style="width: 100px; height: 100px; ">`;
                 }
             }
             document.getElementById('code_txt').innerHTML = 'Sending...';

@@ -5,6 +5,8 @@ import time
 from flask import *
 from werkzeug.utils import secure_filename
 from multiprocessing import Process
+import qrcode
+
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = './uploads/'
@@ -33,10 +35,16 @@ def upload():
         filename = f"{rand_num}______{secure_filename(f.filename)}"
         print(filename)
         f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        # download url
+        download_url = f"https://send.wongstudiohk.com/download/{rand_num}"
+        # make QR code
+        img = qrcode.make(download_url)
+        type(img)  # qrcode.image.pil.PilImage
+        img.save(os.path.join('./qrcode/', f"{rand_num}.png"))
         # start a new process to delete the file
         p = Process(target=delete, args=(filename,))
         p.start()
-        return {"status": "success", "receive_code": rand_num}
+        return {"status": "success", "receive_code": rand_num, "download_url": download_url}
 
 
 @app.route("/download/<string:receive_code>")
@@ -53,8 +61,12 @@ def download(receive_code):
         return "Error"
     # if there is one file, return the file
     return send_file(os.path.join(app.config['UPLOAD_FOLDER'], files[0]), as_attachment=True)
+
+
+@app.route('/qrcode/<string:rand_num>')
+def get_qrcode(rand_num):
+    return send_file(os.path.join('./qrcode/', f"{rand_num}.png"))
+
     
-
-
 if __name__ == "__main__":
     app.run(debug=True)
